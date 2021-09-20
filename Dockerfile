@@ -1,16 +1,17 @@
-FROM gradle:7.0-jdk as build
-COPY . /home/gradle/project
-
-WORKDIR /home/gradle/project
-
-RUN gradle shadowJar
+FROM golang:1.17 as  build
 
 
+ADD . /dockerdev
+WORKDIR /dockerdev
 
-FROM openjdk:16
+RUN go build -o /easytunnel ./cmd
 
-COPY --from=build /home/gradle/project/build/libs/easysshtunnel.jar /userapp.jar
+# Final stage
+FROM debian:buster
 
-CMD java -jar /userapp.jar
+EXPOSE 8000
 
+WORKDIR /
+COPY --from=build /easytunnel /
 
+CMD ["/easytunnel"]

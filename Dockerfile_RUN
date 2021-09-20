@@ -1,5 +1,0 @@
-FROM openjdk:16
-
-COPY ./build/libs/easysshtunnel.jar /tmp
-WORKDIR /tmp
-CMD ["java", "-jar", "easysshtunnel.jar"]

@@ -1,7 +1,20 @@
-FROM openjdk:16
+FROM golang:1.17 as  build
 
-COPY ./build/libs/easysshtunnel.jar /tmp
-WORKDIR /tmp
-#CMD ["java", "-jar", "easysshtunnel.jar"]
+# Build Delve
+RUN go get github.com/go-delve/delve/cmd/dlv
 
-CMD ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005", "-jar", "easysshtunnel.jar"]
+ADD . /dockerdev
+WORKDIR /dockerdev
+
+RUN go build -gcflags="all=-N -l" -o /easytunnel ./cmd
+
+# Final stage
+FROM debian:buster
+
+EXPOSE 40000
+
+WORKDIR /
+COPY --from=build /go/bin/dlv /
+COPY --from=build /easytunnel /
+
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/easytunnel"]
