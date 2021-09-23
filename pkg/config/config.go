@@ -2,17 +2,22 @@ package config
 
 import "github.com/spf13/viper"
 
-type Config struct {
-	DefaultMiddleware string
-}
+type ConfigValues string
 
-var config Config
+const (
+	DefaultMiddleware ConfigValues = "default.middleware"
+)
 
-func Init() {
+func init() {
+	setDefaults()
 	viper.SetEnvPrefix("easytunnel")
 
 }
 
-func GetConfig() Config {
-	return config
+func setDefaults() {
+	viper.SetDefault("default.middleware", "ssh_docker")
+}
+
+func GetStringValue(key ConfigValues) string {
+	return viper.GetString(string(key))
 }

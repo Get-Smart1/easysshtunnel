@@ -1,0 +1,10 @@
+version: '2.4'
+
+services:
+  hello_world:
+    image: tutum/hello-world
+    labels:
+      - "easytunnel.enable=true"
+
+
+

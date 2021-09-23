@@ -1,6 +1,7 @@
 package middelware
 
 import (
+	"easytunnel/pkg/config"
 	"easytunnel/pkg/connection"
 )
 
@@ -25,16 +26,17 @@ func (m *Middleware) AddMiddleware(name string, middleware IMiddleware) {
 	m.middlewares[name] = middleware
 }
 
-func (m *Middleware) CreateNewConnection(info connection.ConnectionInfo) {
-	if info.Provider == "" {
-
+func (m *Middleware) CreateNewConnection(middleware string, info connection.ConnectionInfo) {
+	if middleware == "" {
+		middleware = config.GetStringValue(config.DefaultMiddleware)
 	}
-}
-
-func (m *Middleware) UpdateConnection(info connection.ConnectionInfo) {
 
 }
 
-func (m *Middleware) RemoveConnection(info connection.ConnectionInfo) {
+func (m *Middleware) UpdateConnection(middleware string, info connection.ConnectionInfo) {
+
+}
+
+func (m *Middleware) RemoveConnection(middleware string, info connection.ConnectionInfo) {
 
 }

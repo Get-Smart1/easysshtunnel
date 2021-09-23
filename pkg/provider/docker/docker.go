@@ -87,7 +87,7 @@ func getEasyTunnelLabelsFromContainer(labels map[string]string) map[string]strin
 	result := make(map[string]string)
 
 	for key, element := range labels {
-		if !strings.HasPrefix(key, "easytunnel") {
+		if strings.HasPrefix(key, "easytunnel") {
 			result[key] = element
 		}
 	}
@@ -95,20 +95,30 @@ func getEasyTunnelLabelsFromContainer(labels map[string]string) map[string]strin
 	return result
 }
 
-func (list *containerList) addNewContainers(containers containerList, middelware *middelware.Middleware) {
+func (list *containerList) addNewContainers(containers containerList, middleware *middelware.Middleware) {
 
 	for _, item := range containers {
 		if !list.containsID(item.id) {
 			*list = append(*list, item)
-			middelware.CreateNewConnection(item.getConnectionInfo())
+			middleware.CreateNewConnection(item.getMiddleware(), item.getConnectionInfo())
 		}
 	}
-
 }
-func (list *containerList) updateContainers(containers containerList, middelware *middelware.Middleware) {
 
+func (list *containerList) updateContainers(containers containerList, middleware *middelware.Middleware) {
+	for i, cItem := range *list {
+		for _, nItem := range containers {
+			if cItem.id == nItem.id {
+				if !cItem.equals(nItem) {
+					middleware.UpdateConnection(nItem.getMiddleware(), nItem.getConnectionInfo())
+					*list = remove(*list, i)
+				}
+			}
+		}
+	}
 }
-func (list *containerList) removeContainers(containers containerList, middelware *middelware.Middleware) {
+
+func (list *containerList) removeContainers(containers containerList, middleware *middelware.Middleware) {
 
 }
 
@@ -122,8 +132,68 @@ func (list containerList) containsID(id string) bool {
 	return false
 }
 
+func (container container) getMiddleware() string {
+
+	for _, label := range container.labels {
+		if strings.HasPrefix(label, "easytunnel.middleware") {
+			splited := strings.Split(label, "=")
+			if len(splited) == 1 {
+				return splited[1]
+			}
+		}
+	}
+
+	return ""
+}
+
 func (container container) getConnectionInfo() connection.ConnectionInfo {
 	var result connection.ConnectionInfo
 
 	return result
+}
+
+func remove(list containerList, index int) containerList {
+	list[index] = list[len(list)-1]
+	return list[:len(list)-1]
+}
+
+func (c container) equals(other container) bool {
+	if c.id != other.id {
+		return false
+	}
+
+	if len(c.ports) != len(other.ports) {
+		return false
+	}
+	for _, port := range c.ports {
+		found := false
+		for _, otherport := range other.ports {
+			if port == otherport {
+				found = true
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+
+	if len(c.labels) != len(other.labels) {
+		return false
+	}
+
+	for cKey, cElement := range c.labels {
+		different := true
+		for nKey, nElement := range other.labels {
+			if cKey == nKey {
+				if cElement == nElement {
+					different = false
+				}
+			}
+		}
+		if different {
+			return false
+		}
+	}
+
+	return true
 }
