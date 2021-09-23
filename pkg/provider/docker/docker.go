@@ -34,7 +34,7 @@ type Docker struct {
 	cli *client.Client
 }
 
-func (docker *Docker) Initialize(middleware middelware.Middleware) {
+func (docker *Docker) Initialize(middleware *middelware.Middleware) {
 	log.Info("Initialize docker provider")
 
 	docker.ctx = context.Background()
@@ -49,10 +49,10 @@ func (docker *Docker) Initialize(middleware middelware.Middleware) {
 	var containers containerList
 
 	for {
-		containers.addNewContainers(docker.getAllContainers(), &middleware)
-		containers.updateContainers(docker.getAllContainers(), &middleware)
-		containers.removeContainers(docker.getAllContainers(), &middleware)
-		time.Sleep(3 * time.Second)
+		containers.addNewContainers(docker.getAllContainers(), middleware)
+		containers.updateContainers(docker.getAllContainers(), middleware)
+		containers.removeContainers(docker.getAllContainers(), middleware)
+		time.Sleep(UpdateInterval * time.Second)
 	}
 
 }
@@ -84,7 +84,7 @@ func (docker *Docker) getAllContainers() containerList {
 }
 
 func getEasyTunnelLabelsFromContainer(labels map[string]string) map[string]string {
-	var result map[string]string
+	result := make(map[string]string)
 
 	for key, element := range labels {
 		if !strings.HasPrefix(key, "easytunnel") {
@@ -100,7 +100,7 @@ func (list *containerList) addNewContainers(containers containerList, middelware
 	for _, item := range containers {
 		if !list.containsID(item.id) {
 			*list = append(*list, item)
-			(*middelware).CreateNewConnection(item.getConnectionInfo())
+			middelware.CreateNewConnection(item.getConnectionInfo())
 		}
 	}
 

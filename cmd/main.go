@@ -18,6 +18,6 @@ func main() {
 
 }
 
-func Lol(middleware *middelware.Middleware) {
+func Lol(middleware *middelware.IMiddleware) {
 
 }
