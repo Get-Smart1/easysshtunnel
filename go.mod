@@ -6,6 +6,7 @@ require (
 	github.com/docker/docker v20.10.8+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.4.0
+	gotest.tools v2.2.0+incompatible
 )
 
 require (
@@ -17,6 +18,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.0 // indirect

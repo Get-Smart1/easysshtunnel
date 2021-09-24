@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	UpdateInterval = 3
+	UpdateInterval            = 3
+	EasyTunnelMiddlewareLabel = "easytunnel.middleware"
 )
 
 var (
@@ -34,7 +35,7 @@ type Docker struct {
 	cli *client.Client
 }
 
-func (docker *Docker) Initialize(middleware *middelware.Middleware) {
+func (docker *Docker) Initialize() {
 	log.Info("Initialize docker provider")
 
 	docker.ctx = context.Background()
@@ -49,9 +50,9 @@ func (docker *Docker) Initialize(middleware *middelware.Middleware) {
 	var containers containerList
 
 	for {
-		containers.addNewContainers(docker.getAllContainers(), middleware)
-		containers.updateContainers(docker.getAllContainers(), middleware)
-		containers.removeContainers(docker.getAllContainers(), middleware)
+		containers.addNewContainers(docker.getAllContainers())
+		containers.updateContainers(docker.getAllContainers())
+		containers.removeContainers(docker.getAllContainers())
 		time.Sleep(UpdateInterval * time.Second)
 	}
 
@@ -95,22 +96,22 @@ func getEasyTunnelLabelsFromContainer(labels map[string]string) map[string]strin
 	return result
 }
 
-func (list *containerList) addNewContainers(containers containerList, middleware *middelware.Middleware) {
+func (list *containerList) addNewContainers(containers containerList) {
 
 	for _, item := range containers {
 		if !list.containsID(item.id) {
 			*list = append(*list, item)
-			middleware.CreateNewConnection(item.getMiddleware(), item.getConnectionInfo())
+			middelware.CreateNewConnection(item.getMiddleware(), item.getConnectionInfo())
 		}
 	}
 }
 
-func (list *containerList) updateContainers(containers containerList, middleware *middelware.Middleware) {
+func (list *containerList) updateContainers(containers containerList) {
 	for i, cItem := range *list {
 		for _, nItem := range containers {
 			if cItem.id == nItem.id {
 				if !cItem.equals(nItem) {
-					middleware.UpdateConnection(nItem.getMiddleware(), nItem.getConnectionInfo())
+					middelware.UpdateConnection(nItem.getMiddleware(), nItem.getConnectionInfo())
 					*list = remove(*list, i)
 				}
 			}
@@ -118,7 +119,7 @@ func (list *containerList) updateContainers(containers containerList, middleware
 	}
 }
 
-func (list *containerList) removeContainers(containers containerList, middleware *middelware.Middleware) {
+func (list *containerList) removeContainers(containers containerList) {
 
 }
 
@@ -134,15 +135,11 @@ func (list containerList) containsID(id string) bool {
 
 func (container container) getMiddleware() string {
 
-	for _, label := range container.labels {
-		if strings.HasPrefix(label, "easytunnel.middleware") {
-			splited := strings.Split(label, "=")
-			if len(splited) == 1 {
-				return splited[1]
-			}
+	for key, value := range container.labels {
+		if key == EasyTunnelMiddlewareLabel {
+			return value
 		}
 	}
-
 	return ""
 }
 

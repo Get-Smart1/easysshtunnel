@@ -12,31 +12,29 @@ type IMiddleware interface {
 	RemoveConnection(connection connection.ConnectionInfo)
 }
 
-type Middleware struct {
+var (
 	middlewares map[string]IMiddleware
+)
+
+func init() {
+	middlewares = make(map[string]IMiddleware)
 }
 
-func New() *Middleware {
-	var result Middleware
-	result.middlewares = make(map[string]IMiddleware)
-	return &result
+func AddMiddleware(name string, middleware IMiddleware) {
+	middlewares[name] = middleware
 }
 
-func (m *Middleware) AddMiddleware(name string, middleware IMiddleware) {
-	m.middlewares[name] = middleware
-}
-
-func (m *Middleware) CreateNewConnection(middleware string, info connection.ConnectionInfo) {
+func CreateNewConnection(middleware string, info connection.ConnectionInfo) {
 	if middleware == "" {
 		middleware = config.GetStringValue(config.DefaultMiddleware)
 	}
+	middlewares[middleware].CreateNewConnection(info)
+}
+
+func UpdateConnection(middleware string, info connection.ConnectionInfo) {
 
 }
 
-func (m *Middleware) UpdateConnection(middleware string, info connection.ConnectionInfo) {
-
-}
-
-func (m *Middleware) RemoveConnection(middleware string, info connection.ConnectionInfo) {
+func RemoveConnection(middleware string, info connection.ConnectionInfo) {
 
 }
