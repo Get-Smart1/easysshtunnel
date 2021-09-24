@@ -32,7 +32,10 @@ func CreateNewConnection(middleware string, info connection.ConnectionInfo) {
 }
 
 func UpdateConnection(middleware string, info connection.ConnectionInfo) {
-
+	if middleware == "" {
+		middleware = config.GetStringValue(config.DefaultMiddleware)
+	}
+	middlewares[middleware].UpdateConnection(info)
 }
 
 func RemoveConnection(middleware string, info connection.ConnectionInfo) {
