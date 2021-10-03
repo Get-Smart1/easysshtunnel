@@ -10,6 +10,7 @@ type IMiddleware interface {
 	CreateNewConnection(connection connection.ConnectionInfo)
 	UpdateConnection(connection connection.ConnectionInfo)
 	RemoveConnection(connection connection.ConnectionInfo)
+	GetName() string
 }
 
 var (
@@ -20,8 +21,8 @@ func init() {
 	middlewares = make(map[string]IMiddleware)
 }
 
-func AddMiddleware(name string, middleware IMiddleware) {
-	middlewares[name] = middleware
+func AddMiddleware(middleware IMiddleware) {
+	middlewares[middleware.GetName()] = middleware
 }
 
 func CreateNewConnection(middleware string, info connection.ConnectionInfo) {

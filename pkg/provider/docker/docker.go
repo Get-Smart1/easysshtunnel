@@ -113,6 +113,7 @@ func (list *containerList) updateContainers(containers containerList) {
 				if !cItem.equals(nItem) {
 					middelware.UpdateConnection(nItem.getMiddleware(), nItem.getConnectionInfo())
 					*list = remove(*list, i)
+					*list = append(*list, nItem)
 				}
 			}
 		}

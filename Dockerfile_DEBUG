@@ -13,8 +13,10 @@ FROM debian:buster
 
 EXPOSE 40000
 
-WORKDIR /
-COPY --from=build /go/bin/dlv /
-COPY --from=build /easytunnel /
+RUN mkdir "/easytunnel"
+WORKDIR "/easytunnel"
 
-CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/easytunnel"]
+COPY --from=build /go/bin/dlv ./
+COPY --from=build /easytunnel ./
+
+CMD ["./dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "./easytunnel"]

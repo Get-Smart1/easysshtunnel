@@ -11,7 +11,9 @@ FROM debian:buster
 
 EXPOSE 8000
 
-WORKDIR /
-COPY --from=build /easytunnel /
+RUN mkdir "/easytunnel"
+WORKDIR "/easytunnel"
 
-CMD ["/easytunnel"]
+COPY --from=build /easytunnel ./
+
+CMD ["./easytunnel"]

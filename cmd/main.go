@@ -3,18 +3,17 @@ package main
 import (
 	"easytunnel/pkg/middelware"
 	"easytunnel/pkg/middelware/sshdocker"
-	"easytunnel/pkg/provider/docker"
-	"time"
 )
 
 func main() {
 
-	var middelware sshdocker.SshDocker
-	var provider docker.Docker
+	sshDockerMiddleware := sshdocker.SshDocker{}
+	sshDockerMiddleware.Initialize()
+	middelware.AddMiddleware(&sshDockerMiddleware)
 
-	go provider.Initialize(&middelware)
+	for true {
 
-	time.Sleep(500 * time.Second)
+	}
 
 }
 

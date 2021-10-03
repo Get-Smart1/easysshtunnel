@@ -5,6 +5,8 @@ services:
     image: tutum/hello-world
     labels:
       - "easytunnel.enable=true"
+      - "easytunnel.ports=80:80"
+      - "easytunnel.exposePorts=true"
 
 
 

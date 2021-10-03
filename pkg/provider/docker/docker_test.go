@@ -1,9 +1,15 @@
 package docker
 
 import (
+	"context"
 	"easytunnel/pkg/connection"
 	"easytunnel/pkg/middelware"
+	"github.com/docker/docker/api/types"
+	container2 "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"gotest.tools/assert"
+	"io"
+	"os"
 	"testing"
 )
 
@@ -12,7 +18,7 @@ type callBackUpdate func()
 
 type DummyMiddleware struct {
 	createNew callbackCreateNew
-ad	update callBackUpdate
+	update    callBackUpdate
 }
 
 func (DummyMiddleware) Initialize() {
@@ -111,7 +117,6 @@ func Test_containerList_updateContainers_ChangedNone(t *testing.T) {
 
 }
 
-
 func Test_containerList_updateContainers_ChangedOneContainer(t *testing.T) {
 
 	cList, nList, middleware := init_ContainersTest()
@@ -143,7 +148,47 @@ func Test_containerList_updateContainers_ChangedOneContainer(t *testing.T) {
 		t.Error("Update on Middleware was not called")
 	}
 	assert.Equal(t, counter, 1, "The Update Container Function in middleware was called multiple times")
+	assert.Equal(t, cList[0].labels["easytunnel.enable"], "false")
 
+}
 
+func TestDocker_getAllContainers(t *testing.T) {
+
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+
+	if err != nil {
+		t.Skip("error connecting to docker, for docker provider test", err)
+	}
+
+	imageName := "tutum/hello-world"
+
+	docker := &Docker{
+		ctx: ctx,
+		cli: cli,
+	}
+
+	containerCount := len(docker.getAllContainers())
+
+	out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+	if err != nil {
+		t.Skip(err)
+	}
+	io.Copy(os.Stdout, out)
+
+	resp, err := cli.ContainerCreate(ctx, &container2.Config{
+		Image:  imageName,
+		Labels: map[string]string{"easytunnel.enabled": "true"},
+	}, nil, nil, nil, "")
+	if err != nil {
+		t.Skip(err)
+	}
+	defer cli.ContainerRemove(ctx, resp.ID, types.ContainerRemoveOptions{Force: true})
+
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		t.Skip(err)
+	}
+
+	assert.Equal(t, containerCount+1, len(docker.getAllContainers()), "new created container was not found by function")
 
 }
