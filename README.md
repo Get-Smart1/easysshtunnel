@@ -30,7 +30,7 @@ All you need is a cheap Server (i.e VPS) with a static IP Address (you can alrea
 1€). Then you have to deploy the easy_tunnel server. On your local Server (for example Raspberry Pi) you
 have to install the Client (a simple Java Application). The Java Client then connects to the server, read the 
 Configuration and establishes the tunnel. Now you can reach your Service with the static IP Address from your Server (VPS).
-![easy_tunnel_architecture](screenshots/Easy_Tunnel_SSH.png)
+![easy_tunnel_architecture](Easy_Tunnel_SSH.png)
 
 ## Features
 
